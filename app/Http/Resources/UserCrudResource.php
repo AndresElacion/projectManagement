@@ -8,9 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserCrudResource extends JsonResource
 {
-    /**
-     * Disable wrap
-     */
+    /** This is to populate the data to frontend */
     public static $wrap = false;
     /**
      * Transform the resource into an array.

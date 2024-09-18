@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectResource extends JsonResource
 {
+    /** This is to populate the data to frontend */
     public static $wrap = false;
     /**
      * Transform the resource into an array.
