@@ -6,7 +6,11 @@ import {
   TASK_STATUS_CLASS_MAP,
   TASK_STATUS_TEXT_MAP,
 } from "@/constants";
+import Accordion from "@/Components/Accordion";
+
+
 export default function Show({ auth, task }) {
+
   return (
     <AuthenticatedLayout
       user={auth.user}
@@ -38,17 +42,17 @@ export default function Show({ auth, task }) {
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="grid gap-1 grid-cols-2 mt-2">
                 <div>
-                  <div>
-                    <label className="font-bold text-lg">Task ID</label>
+                  <div className="grid grid-cols-2">
+                    <label className="font-bold text-lg">Task ID :</label>
                     <p className="mt-1">{task.id}</p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Task Name</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Task Name :</label>
                     <p className="mt-1">{task.name}</p>
                   </div>
 
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Task Status</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Task Status :</label>
                     <p className="mt-1">
                       <span
                         className={
@@ -61,8 +65,8 @@ export default function Show({ auth, task }) {
                     </p>
                   </div>
 
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Task Priority</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Task Priority :</label>
                     <p className="mt-1">
                       <span
                         className={
@@ -74,26 +78,27 @@ export default function Show({ auth, task }) {
                       </span>
                     </p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Created By</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Created By :</label>
                     <p className="mt-1">{task.createdBy.name}</p>
                   </div>
                 </div>
-                <div>
-                  <div>
-                    <label className="font-bold text-lg">Due Date</label>
+                <div className="border-l">
+                  <div className="ml-10">
+                  <div className="grid grid-cols-2">
+                    <label className="font-bold text-lg">Due Date :</label>
                     <p className="mt-1">{task.due_date}</p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Create Date</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Create Date :</label>
                     <p className="mt-1">{task.created_at}</p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Updated By</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Updated By :</label>
                     <p className="mt-1">{task.updatedBy.name}</p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Project</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Project :</label>
                     <p className="mt-1">
                       <Link
                         href={route("project.show", task.project.id)}
@@ -103,16 +108,43 @@ export default function Show({ auth, task }) {
                       </Link>
                     </p>
                   </div>
-                  <div className="mt-4">
-                    <label className="font-bold text-lg">Assigned User</label>
+                  <div className="mt-4 grid grid-cols-2">
+                    <label className="font-bold text-lg">Assigned User :</label>
                     <p className="mt-1">{task.assignedUser.name}</p>
                   </div>
                 </div>
+                </div>
               </div>
 
+              <hr className="mt-4" />
               <div className="mt-4">
-                <label className="font-bold text-lg">Task Description</label>
+                <label className="font-bold text-lg">Task Description :</label>
                 <p className="mt-1">{task.description}</p>
+              </div>
+
+              <hr className="mt-4" />
+              {/* Need to change this to modal */}
+              <div className="mr-2 flex flex-row gap-5 mt-4">
+                <div>
+                  <Accordion
+                    title="Ticket Thread"
+                    content={
+                      <div>
+                        <p>This is for Ticket Thread need to add connected content or details (assignedUser, ownerUser, addedCollaborator, dateTime) Can upload file or images and update</p>
+                      </div>
+                    }
+                  />
+                </div>
+                <div>
+                  <Accordion
+                    title="Tasks"
+                    content={
+                      <div>
+                        <p>{task.description}</p>
+                      </div>
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
