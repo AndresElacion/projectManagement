@@ -38,7 +38,7 @@ export default function Edit({ auth, project }) {
     return (
         <AuthenticatedLayout user={auth.user} header={
             <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                     Edit project "{project.name}"
                 </h2>
             </div>
@@ -48,8 +48,8 @@ export default function Edit({ auth, project }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                    <div className="bg-whiteoverflow-hidden shadow-sm sm:rounded-lg">
+                        <form onSubmit={onSubmit} className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                             <div>
                                 {project.image_path && (
                                     <div className="mb-4">
