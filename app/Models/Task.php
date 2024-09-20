@@ -27,4 +27,8 @@ class Task extends Model
     public function updatedBy() {
         return $this->belongsTo(Project::class, 'updated_by');
     }
+
+    public function taskThread() {
+        return $this->hasMany(TaskThread::class);
+    }
 }
