@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Project;
+use App\Models\TaskThread;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ThreadResource;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Resources\ProjectResource;
 use Illuminate\Support\Facades\Storage;
@@ -74,13 +77,32 @@ class TaskController extends Controller
             ->with('success', 'Task was created');
     }
 
+    public function storeThread(Request $request, Task $task)
+    {
+        $request->validate([
+            'description' => 'required|string|max:500',
+        ]);
+    
+        TaskThread::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'description' => $request->description,
+        ]);
+    
+        return redirect()->route('task.show', $task->id)
+            ->with('success', 'Thread added successfully');
+    }
+    
     /**
      * Display the specified resource.
      */
     public function show(Task $task)
     {
+        $threads = $task->taskThread()->with('user')->orderBy('created_at', 'desc')->get();
+
         return inertia('Task/Show', [
             'task' => new TaskResource($task),
+            'threads' => ThreadResource::collection($threads),
         ]);
     }
 

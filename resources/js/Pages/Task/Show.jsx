@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import {
   TASK_PRIORITY_CLASS_MAP,
   TASK_PRIORITY_TEXT_MAP,
@@ -7,9 +7,21 @@ import {
   TASK_STATUS_TEXT_MAP,
 } from "@/constants";
 import Accordion from "@/Components/Accordion";
+import InputLabel from "@/Components/InputLabel";
+import TextAreaInput from "@/Components/TextAreaInput";
+import InputError from "@/Components/InputError";
 
+export default function Show({ auth, task, threads }) {
+  const { data, setData, post, errors, reset } = useForm({
+    description: "",
+  });
 
-export default function Show({ auth, task }) {
+  const onSubmit = (e) => {
+    e.preventDefault();
+    post(route("task.threads.store", task.id), {
+      onSuccess: () => reset(), // Clear the form after submission
+    });
+  };
 
   return (
     <AuthenticatedLayout
@@ -41,6 +53,7 @@ export default function Show({ auth, task }) {
             </div>
             <div className="p-6 text-gray-900 dark:text-gray-100">
               <div className="grid gap-1 grid-cols-2 mt-2">
+                {/* Task Details */}
                 <div>
                   <div className="grid grid-cols-2">
                     <label className="font-bold text-lg">Task ID :</label>
@@ -83,68 +96,89 @@ export default function Show({ auth, task }) {
                     <p className="mt-1">{task.createdBy.name}</p>
                   </div>
                 </div>
+
+                {/* Additional Task Info */}
                 <div className="border-l">
                   <div className="ml-10">
-                  <div className="grid grid-cols-2">
-                    <label className="font-bold text-lg">Due Date :</label>
-                    <p className="mt-1">{task.due_date}</p>
+                    <div className="grid grid-cols-2">
+                      <label className="font-bold text-lg">Due Date :</label>
+                      <p className="mt-1">{task.due_date}</p>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2">
+                      <label className="font-bold text-lg">Create Date :</label>
+                      <p className="mt-1">{task.created_at}</p>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2">
+                      <label className="font-bold text-lg">Updated By :</label>
+                      <p className="mt-1">{task.updatedBy.name}</p>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2">
+                      <label className="font-bold text-lg">Project :</label>
+                      <p className="mt-1">
+                        <Link
+                          href={route("project.show", task.project.id)}
+                          className="hover:underline"
+                        >
+                          {task.project.name}
+                        </Link>
+                      </p>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2">
+                      <label className="font-bold text-lg">Assigned User :</label>
+                      <p className="mt-1">{task.assignedUser.name}</p>
+                    </div>
                   </div>
-                  <div className="mt-4 grid grid-cols-2">
-                    <label className="font-bold text-lg">Create Date :</label>
-                    <p className="mt-1">{task.created_at}</p>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2">
-                    <label className="font-bold text-lg">Updated By :</label>
-                    <p className="mt-1">{task.updatedBy.name}</p>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2">
-                    <label className="font-bold text-lg">Project :</label>
-                    <p className="mt-1">
-                      <Link
-                        href={route("project.show", task.project.id)}
-                        className="hover:underline"
-                      >
-                        {task.project.name}
-                      </Link>
-                    </p>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2">
-                    <label className="font-bold text-lg">Assigned User :</label>
-                    <p className="mt-1">{task.assignedUser.name}</p>
-                  </div>
-                </div>
                 </div>
               </div>
 
+              {/* Task Description */}
               <hr className="mt-4" />
               <div className="mt-4">
                 <label className="font-bold text-lg">Task Description :</label>
                 <p className="mt-1">{task.description}</p>
               </div>
 
+              {/* Task Thread Accordion */}
               <hr className="mt-4" />
-              {/* Need to change this to modal */}
-              <div className="mr-2 flex flex-row gap-5 mt-4">
-                <div>
-                  <Accordion
-                    title="Ticket Thread"
-                    content={
-                      <div>
-                        <p>This is for Ticket Thread need to add connected content or details (assignedUser, ownerUser, addedCollaborator, dateTime) Can upload file or images and update</p>
-                      </div>
-                    }
-                  />
-                </div>
-                <div>
-                  <Accordion
-                    title="Tasks"
-                    content={
-                      <div>
-                        <p>{task.description}</p>
-                      </div>
-                    }
-                  />
-                </div>
+              <div className="mt-4">
+                <Accordion
+                  title="Task Thread"
+                  content={
+                    <div>
+                      {threads.data.length > 0 ? (
+                        threads.data.map((thread) => (
+                          <div key={thread.id} className="mb-4 p-2 border-b">
+                            <p className="font-semibold">{thread.user.name} - {thread.created_at}</p>
+                            <p className="font-semibold">{thread.user.email}</p>
+                            <p>{thread.description}</p>
+                          </div>
+                        ))
+                        ) : (
+                          <p>No threads available.</p>
+                      )}
+
+                      <form onSubmit={onSubmit}>
+                        <div className="mt-4">
+                          <InputLabel
+                            htmlFor="task_description"
+                            value="Add a new thread"
+                          />
+                          <TextAreaInput
+                            id="task_description"
+                            name="description"
+                            value={data.description}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData("description", e.target.value)}
+                          />
+                          <InputError message={errors.description} className="mt-2" />
+                        </div>
+                        <button className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600 mt-4">
+                          Submit
+                        </button>
+                      </form>
+                    </div>
+                  }
+                />
               </div>
             </div>
           </div>

@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('/task/my-tasks', [TaskController::class, 'myTasks'])->name('task.myTasks');
     Route::resource('/task', TaskController::class);
     Route::resource('/user', UserController::class);
+    Route::post('/task/{task}/threads', [TaskController::class, 'storeThread'])->name('task.threads.store');
 });
 
 Route::middleware('auth')->group(function () {
