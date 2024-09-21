@@ -81,17 +81,29 @@ class TaskController extends Controller
     {
         $request->validate([
             'description' => 'required|string|max:500',
+            'image_path' => 'nullable|image'
         ]);
-    
+
+        if ($request->hasFile('image_path')) {
+            // Store the file and get the path
+            $image = $request->file('image_path');
+            $imagePath = $image->store('task/threads/' . Str::random(), 'public');
+        } else {
+            $imagePath = null;
+        }
+
+        // Save the thread with the uploaded image path
         TaskThread::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
             'description' => $request->description,
+            'image_path' => $imagePath
         ]);
-    
+
         return redirect()->route('task.show', $task->id)
             ->with('success', 'Thread added successfully');
     }
+
     
     /**
      * Display the specified resource.
