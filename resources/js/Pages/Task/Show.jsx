@@ -10,10 +10,12 @@ import Accordion from "@/Components/Accordion";
 import InputLabel from "@/Components/InputLabel";
 import TextAreaInput from "@/Components/TextAreaInput";
 import InputError from "@/Components/InputError";
+import TextInput from "@/Components/TextInput";
 
 export default function Show({ auth, task, threads }) {
   const { data, setData, post, errors, reset } = useForm({
-    description: "",
+      description: "",
+      image_path: '',
   });
 
   const onSubmit = (e) => {
@@ -168,6 +170,13 @@ export default function Show({ auth, task, threads }) {
                               </div>
                               <p className="text-sm text-black ">{thread.user.email}</p>
                               <p className="mt-2 text-black ">{thread.description}</p>
+                              <div>
+                                <img
+                                  src={thread.image_path}
+                                  alt="Task Image"
+                                  className="w-full h-64 object-cover"
+                                />
+                              </div>
                             </div>
                           ))
                         ) : (
@@ -176,18 +185,35 @@ export default function Show({ auth, task, threads }) {
 
                         {/* Add New Thread Form */}
                         <form onSubmit={onSubmit} className="mt-6">
-                          <InputLabel
+                          <div className="mt-4">
+                            <InputLabel
                             htmlFor="task_description"
                             value="Add a new thread"
-                          />
-                          <TextAreaInput
-                            id="task_description"
-                            name="description"
-                            value={data.description}
-                            className="mt-2 block w-full"
-                            onChange={(e) => setData("description", e.target.value)}
-                          />
-                          <InputError message={errors.description} className="mt-2" />
+                            />
+                            <TextAreaInput
+                              id="task_description"
+                              name="description"
+                              value={data.description}
+                              className="mt-2 block w-full"
+                              onChange={(e) => setData("description", e.target.value)}
+                            />
+                            <InputError message={errors.description} className="mt-2" />
+                          </div>
+
+                          <div className="mt-4">
+                            <InputLabel
+                                htmlFor="Thread_image_path"
+                                value="Thread Image"
+                            />
+                            <TextInput
+                                id="Thread_image_path"
+                                type="file"
+                                name="image_path"
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData("image_path", e.target.files[0])}
+                            />
+                            <InputError message={errors.image_path} className="mt-2"/>
+                          </div>
                           <button className="bg-emerald-500 py-2 px-4 text-white rounded-lg shadow-md hover:bg-emerald-600 mt-4">
                             Submit
                           </button>

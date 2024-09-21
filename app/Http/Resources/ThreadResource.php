@@ -5,6 +5,8 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ThreadResource extends JsonResource
@@ -21,7 +23,9 @@ class ThreadResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'task_id' => $this->task_id,
             'description' => $this->description,
+            'image_path' => $this->image_path ? Storage::url($this->image_path) : '',
             'user' => new UserResource($this->user),
             'created_at' => Carbon::parse($this->created_at)
             ->timezone('Asia/Manila')
