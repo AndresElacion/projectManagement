@@ -49,7 +49,7 @@ export default function Dashboard({ auth, myPendingTasks, totalPendingTasks, myP
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            <h3 className='text-gray-200 text-xl font-semibold'>
+                            <h3 className='text-xl font-semibold'>
                                 My Active Tasks
                             </h3>
 
