@@ -11,19 +11,52 @@ import InputLabel from "@/Components/InputLabel";
 import TextAreaInput from "@/Components/TextAreaInput";
 import InputError from "@/Components/InputError";
 import TextInput from "@/Components/TextInput";
+import { useState } from 'react';
 
 export default function Show({ auth, task, threads }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [currentImage, setCurrentImage] = useState(null)
+
   const { data, setData, post, errors, reset } = useForm({
-      description: "",
-      image_path: '',
+    description: "",
+    image_path: null,
+    attachment_file: null,
   });
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    // Create a FormData object to handle file uploads
+    const formData = new FormData();
+    formData.append("description", data.description);
+
+    if (data.image_path) {
+      formData.append("image_path", data.image_path);
+    }
+    if (data.attachment_file) {
+      formData.append("attachment_file", data.attachment_file);
+    }
+
+    // Use Inertia's post method to handle the form submission
     post(route("task.threads.store", task.id), {
-      onSuccess: () => reset(), // Clear the form after submission
+      data: formData, // Pass the FormData object
+      onSuccess: () => reset(), // Reset the form after successful submission
+      preserveScroll: true,
+      headers: {
+        "Content-Type": "multipart/form-data", // Ensure the correct content type
+      },
     });
   };
+
+  const openModal = (image) => {
+    setCurrentImage(image)
+    setIsOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsOpen(false)
+    setCurrentImage(null)
+  }
 
   return (
     <AuthenticatedLayout
@@ -170,26 +203,58 @@ export default function Show({ auth, task, threads }) {
                               </div>
                               <p className="text-sm text-black ">{thread.user.email}</p>
                               <p className="mt-2 text-black ">{thread.description}</p>
-                              <div>
-                                <img
-                                  src={thread.image_path}
-                                  alt="Task Image"
-                                  className="w-full h-64 object-cover"
-                                />
+
+                              {thread.attachment_file && (
+                                <div className="my-4 text-black flex gap-2">
+                                <div>
+                                  <a href={thread.attachment_file} target="_blank" rel="noopener noreferrer" className="bg-emerald-500 py-2 px-4 text-white rounded-lg shadow-md hover:bg-emerald-600 mt-4">View Attachment</a>
+                                </div>
+                                <div>
+                                  <a href={thread.attachment_file} download="Attachment.pdf" className="bg-blue-500 py-2 px-4 text-white rounded-lg shadow-md hover:bg-blue-600 mt-4">Download Attachment</a>
+                                </div>
                               </div>
+                              )}
+
+                              {/* Image */}
+                              {thread.image_path && (
+                                  <div>
+                                    <img
+                                      src={thread.image_path} // Adjust the path as necessary
+                                      alt="Thread Image"
+                                      className="w-full h-64 object-cover cursor-pointer"
+                                      onClick={() => openModal(thread.image_path)} // Adjust path if needed
+                                    />
+                                    
+                                    {/* Modal */}
+                                    {isOpen && (
+                                      <div 
+                                        className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+                                        onClick={closeModal} // Close modal when clicking on the overlay
+                                      >
+                                        <div 
+                                          className="bg-white p-4 rounded"
+                                          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+                                        >
+                                          <img
+                                            src={currentImage}
+                                            alt="Large View"
+                                            className="max-w-full max-h-screen"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                             </div>
                           ))
                         ) : (
                           <p>No threads available.</p>
                         )}
 
-                        {/* Add New Thread Form */}
-                        <form onSubmit={onSubmit} className="mt-6">
+                        <form onSubmit={onSubmit} encType="multipart/form-data" className="mt-6">
+                          {/* Task Description */}
                           <div className="mt-4">
-                            <InputLabel
-                            htmlFor="task_description"
-                            value="Add a new thread"
-                            />
+                            <InputLabel htmlFor="task_description" value="Add a new thread" />
                             <TextAreaInput
                               id="task_description"
                               name="description"
@@ -200,20 +265,33 @@ export default function Show({ auth, task, threads }) {
                             <InputError message={errors.description} className="mt-2" />
                           </div>
 
+                          {/* Thread Image */}
                           <div className="mt-4">
-                            <InputLabel
-                                htmlFor="Thread_image_path"
-                                value="Thread Image"
-                            />
+                            <InputLabel htmlFor="Thread_image_path" value="Thread Image" />
                             <TextInput
-                                id="Thread_image_path"
-                                type="file"
-                                name="image_path"
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData("image_path", e.target.files[0])}
+                              id="Thread_image_path"
+                              type="file"
+                              name="image_path"
+                              className="mt-1 block w-full"
+                              onChange={(e) => setData("image_path", e.target.files[0])}
                             />
-                            <InputError message={errors.image_path} className="mt-2"/>
+                            <InputError message={errors.image_path} className="mt-2" />
                           </div>
+
+                          {/* Thread Attachment */}
+                          <div className="mt-4">
+                            <InputLabel htmlFor="Thread_attachment_file" value="Thread Attachment" />
+                            <TextInput
+                              id="Thread_attachment_file"
+                              type="file"
+                              name="attachment_file"
+                              className="mt-1 block w-full"
+                              onChange={(e) => setData("attachment_file", e.target.files[0])}
+                              accept=".pdf,.doc,.docx"
+                            />
+                            <InputError message={errors.attachment_file} className="mt-2" />
+                          </div>
+
                           <button className="bg-emerald-500 py-2 px-4 text-white rounded-lg shadow-md hover:bg-emerald-600 mt-4">
                             Submit
                           </button>
