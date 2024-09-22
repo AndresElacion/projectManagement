@@ -26,6 +26,7 @@ class ThreadResource extends JsonResource
             'task_id' => $this->task_id,
             'description' => $this->description,
             'image_path' => $this->image_path ? Storage::url($this->image_path) : '',
+            'attachment_file' => $this->attachment_file ? Storage::url($this->attachment_file) : '',
             'user' => new UserResource($this->user),
             'created_at' => Carbon::parse($this->created_at)
             ->timezone('Asia/Manila')

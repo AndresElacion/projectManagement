@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade'); // link to task
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // link to user who posted
-            $table->text('description'); // content of the thread (update or comment)
+            $table->longText('description'); 
+            $table->string('image_path')->nullable();
+            $table->string('attachment_file')->nullable();
             $table->timestamps();
         });
     }

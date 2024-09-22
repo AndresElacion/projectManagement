@@ -81,7 +81,8 @@ class TaskController extends Controller
     {
         $request->validate([
             'description' => 'required|string|max:500',
-            'image_path' => 'nullable|image'
+            'image_path' => 'nullable|image',
+            'attachment_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
         ]);
 
         if ($request->hasFile('image_path')) {
@@ -92,12 +93,20 @@ class TaskController extends Controller
             $imagePath = null;
         }
 
+        if ($request->hasFile('attachment_file')) {
+            $attachment = $request->file('attachment_file');
+            $attachmentFile = $attachment->store('task/threads/' . Str::random(), 'public');
+        } else {
+            $attachmentFile = null;
+        }
+
         // Save the thread with the uploaded image path
         TaskThread::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
             'description' => $request->description,
-            'image_path' => $imagePath
+            'image_path' => $imagePath,
+            'attachment_file' => $attachmentFile
         ]);
 
         return redirect()->route('task.show', $task->id)
