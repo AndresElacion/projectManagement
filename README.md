@@ -8,6 +8,7 @@
 - composer install
 - npm install
 - generate APP_KEY: php artisan key:generate
+- Run php artisan storage:link
 - Run php artisan migrate --seed
 - Start vite server - npm run dev
 - Start Artisan server - php artisan serve
