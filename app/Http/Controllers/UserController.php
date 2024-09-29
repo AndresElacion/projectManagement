@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserCrudResource;
 
 class UserController extends Controller
@@ -17,6 +18,10 @@ class UserController extends Controller
     public function index()
     {
         $query = User::query();
+
+        if (Auth::check()) {
+            $query->where('company_id', Auth::user()->company_id);
+        }
 
         $sortField = request("sort_field", 'created_at');
         $sortDirection = request("sort_direction", "desc");
@@ -54,6 +59,18 @@ class UserController extends Controller
         $data = $request->validated();
         $data["email_verified_at"] = time(); // need to delete this and work on mailer to send email verification before login
         $data['password'] = bcrypt($data['password']);
+
+        // Check if the company name is provided
+        if ($request->has('company_name')) {
+            // Try to find the company by name
+            $company = Company::firstOrCreate(
+                ['name' => $request->input('company_name')],
+            );
+
+            // Associate the user with the found/created company
+            $data['company_id'] = $company->id;
+        }
+
         user::create($data);
 
         return to_route('user.index')

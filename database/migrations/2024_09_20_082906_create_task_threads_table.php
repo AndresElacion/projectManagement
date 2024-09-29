@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('task_threads', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('task_id')->constrained()->onDelete('cascade'); // link to task
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // link to user who posted
             $table->longText('description'); 

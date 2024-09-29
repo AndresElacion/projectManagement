@@ -20,6 +20,10 @@ class ProjectController extends Controller
     {
         $query = Project::query();
 
+        if (Auth::check()) {
+            $query->where('company_id', Auth::user()->company_id);
+        }
+
         $sortField = request("sort_field", 'created_at');
         $sortDirection = request("sort_direction", "desc");
 
@@ -54,6 +58,7 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request)
     {
         $data = $request->validated();
+        $data['company_id'] = Auth::user()->company_id;
         $image = $data['image_path'] ?? null;
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
@@ -109,6 +114,7 @@ class ProjectController extends Controller
     public function update(UpdateProjectRequest $request, Project $project)
     {
         $data = $request->validated();
+        $data['company_id'] = Auth::user()->company_id;
         $image = $data['image_path'] ?? null;
         $data['updated_by'] = Auth::id();
 

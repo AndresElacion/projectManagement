@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,6 +24,7 @@ class TaskFactory extends Factory
             'status' => fake()->randomElement(['pending', 'in_progress', 'completed']),
             'priority' => fake()->randomElement(['low', 'medium', 'high']),
             'image_path' => fake()->imageUrl(),
+            'company_id' => Company::factory(),
             'assigned_user_id' => 1,
             'created_by' => 1,
             'updated_by' => 1,
