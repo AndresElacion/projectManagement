@@ -26,6 +26,10 @@ class TaskController extends Controller
     {
         $query = Task::query();
 
+        if (Auth::check()) {
+            $query->where('company_id', Auth::user()->company_id);
+        }
+
         $sortField = request("sort_field", 'created_at');
         $sortDirection = request("sort_direction", "desc");
 
@@ -65,6 +69,7 @@ class TaskController extends Controller
     public function store(StoreTaskRequest $request)
     {
         $data = $request->validated();
+        $data['company_id'] = Auth::user()->company_id;
         $image = $data['image_path'] ?? null;
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
@@ -148,6 +153,7 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task)
     {
         $data = $request->validated();
+        $data['company_id'] = Auth::user()->company_id;
         $image = $data['image_path'] ?? null;
         $data['updated_by'] = Auth::id();
 

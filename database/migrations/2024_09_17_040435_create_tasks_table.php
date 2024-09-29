@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('priority');
             $table->string('due_date')->nullable();
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignId('assigned_user_id')->constrained('users');
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('updated_by')->constrained('users');

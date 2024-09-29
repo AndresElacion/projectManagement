@@ -5,24 +5,24 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 export default function Create({ auth }) {
-    const {data, setData, post, errors, reset} = useForm({
+    const { data, setData, post, errors, reset } = useForm({
         name: '',
         email: '',
         password: '',
-        passwird_confirmation: ''
-    })
+        password_confirmation: '',
+        company_name: '', // Add company name to the state
+    });
 
     const onSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        post(route("user.store"))
+        post(route("user.store"));
     }
 
     return (
         <AuthenticatedLayout user={auth.user} header={
             <div className="flex justify-between items-center">
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    
                     Create New User
                 </h2>
             </div>
@@ -50,6 +50,7 @@ export default function Create({ auth }) {
                                 />
                                 <InputError message={errors.name} className="mt-2"/>
                             </div>
+                            
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="user_email"
@@ -64,6 +65,7 @@ export default function Create({ auth }) {
                                 />
                                 <InputError message={errors.email} className="mt-2"/>
                             </div>
+                            
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="user_password"
@@ -76,12 +78,13 @@ export default function Create({ auth }) {
                                     className="mt-1 block w-full"
                                     onChange={e => setData('password', e.target.value)}
                                 />
-                                <InputError message={errors.name} className="mt-2"/>
+                                <InputError message={errors.password} className="mt-2"/>
                             </div>
+                            
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="user_password_confirmation"
-                                    value="Confirm password"
+                                    value="Confirm Password"
                                 />
                                 <TextInput
                                     id="user_password_confirmation"
@@ -90,8 +93,25 @@ export default function Create({ auth }) {
                                     className="mt-1 block w-full"
                                     onChange={e => setData('password_confirmation', e.target.value)}
                                 />
-                                <InputError message={errors.name} className="mt-2"/>
+                                <InputError message={errors.password_confirmation} className="mt-2"/>
                             </div>
+
+                            <div className="mt-4">
+                                <InputLabel
+                                    htmlFor="company_name"
+                                    value="Company Name"
+                                />
+                                <TextInput
+                                    id="company_name"
+                                    type="text"
+                                    name="company_name"
+                                    value={data.company_name}
+                                    className="mt-1 block w-full"
+                                    onChange={e => setData('company_name', e.target.value)}
+                                />
+                                <InputError message={errors.company_name} className="mt-2"/>
+                            </div>
+
                             <div className="mt-4 text-right">
                                 <Link href={route('user.index')} className="bg-gray-100 py-1 px-3 text-gray-800 rounded shadow transition-all hover:bg-gray-200 mr-2">
                                     Cancel

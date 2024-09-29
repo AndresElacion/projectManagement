@@ -142,7 +142,7 @@ export default function TaskTable({ tasks, success, queryParams = null, hideProj
                             <td className="px-3 py-2">
                                 <img src={task.image_path} alt="" style={{width: 60}}/>
                             </td>
-                            {!hideProjectColumn && (<td className="px-3 py-2">{task.project.name}</td>)}
+                            {!hideProjectColumn && (<td className="px-3 py-2">{task.project ? task.project.name : 'N/A'}</td>)}
                             <td className="px-3 py-2 hover:underline">
                                 <Link href={route("task.show", task.id)}>
                                     {task.name}
