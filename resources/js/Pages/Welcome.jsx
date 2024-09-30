@@ -62,6 +62,20 @@ export default function Welcome({ auth }) {
                             </section>
                         </main>
 
+                        
+
+                        {/* Goodbye to Old Tradition Section */}
+                        <section className="mt-20 py-20 bg-slate-50 rounded-lg">
+                            <div className="container mx-auto px-6 lg:px-12 text-center">
+                                <h2 className="text-4xl font-extrabold text-gray-900">
+                                    Say Goodbye to the Old Tradition of Project Management
+                                </h2>
+                                <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+                                    Embrace a new era of project management with TaskFlow. No more endless email chains or outdated spreadsheets. Our platform integrates modern methodologies, providing a seamless and intuitive experience for managing your projects. Say goodbye to chaos and hello to clarity, collaboration, and control.
+                                </p>
+                            </div>
+                        </section>
+
                         {/* Key Features Section */}
                         <section className="mt-20 py-20 bg-slate-50">
                             <div className="container mx-auto px-6 lg:px-12">
@@ -157,33 +171,8 @@ export default function Welcome({ auth }) {
 
                         {/* Footer */}
                         <footer className="bg-gray-900 text-white py-16 mt-24 rounded-lg shadow-md mb-12">
-                            <div className="container mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-3 gap-12">
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-4">Product</h3>
-                                    <ul className="space-y-2">
-                                        <li><a href="#" className="hover:underline">Features</a></li>
-                                        <li><a href="#" className="hover:underline">Pricing</a></li>
-                                        <li><a href="#" className="hover:underline">Integrations</a></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-4">Company</h3>
-                                    <ul className="space-y-2">
-                                        <li><a href="#" className="hover:underline">About Us</a></li>
-                                        <li><a href="#" className="hover:underline">Careers</a></li>
-                                        <li><a href="#" className="hover:underline">Press</a></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
-                                    <ul className="space-y-2">
-                                        <li><a href="#" className="hover:underline">Support</a></li>
-                                        <li><a href="#" className="hover:underline">Contact Us</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className="mt-12 text-center">
-                                <p className="text-sm">&copy; 2024 TaskFlow. All Rights Reserved.</p>
+                            <div className="container mx-auto text-center">
+                                <p>&copy; {new Date().getFullYear()} TaskFlow. All rights reserved.</p>
                             </div>
                         </footer>
                     </div>
@@ -192,3 +181,7 @@ export default function Welcome({ auth }) {
         </>
     );
 }
+
+
+
+

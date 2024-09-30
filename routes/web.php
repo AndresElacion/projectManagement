@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
@@ -27,6 +28,19 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::resource('/user', UserController::class);
     Route::post('/task/{task}/threads', [TaskController::class, 'storeThread'])->name('task.threads.store');
 });
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Route to show the chat page
+    Route::get('/chat', [MessageController::class, 'showChatPage'])->name('chat');
+
+    // Route to fetch messages for a specific user
+    Route::get('/messages/{receiverId}', [MessageController::class, 'fetchMessages']);
+
+    // Route to send a new message
+    Route::post('/messages', [MessageController::class, 'sendMessages']);
+    Route::get('/users', [MessageController::class, 'getUsers']); // Fetch list of users
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
