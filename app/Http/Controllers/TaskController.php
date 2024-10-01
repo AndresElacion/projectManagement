@@ -93,6 +93,8 @@ class TaskController extends Controller
             'attachment_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240'
         ]);
 
+        $request['company_id'] = Auth::user()->company_id;
+
         if ($request->hasFile('image_path')) {
             // Store the file and get the path
             $image = $request->file('image_path');
@@ -114,7 +116,8 @@ class TaskController extends Controller
             'user_id' => Auth::id(),
             'description' => $request->description,
             'image_path' => $imagePath,
-            'attachment_file' => $attachmentFile
+            'attachment_file' => $attachmentFile,
+            'company_id' =>$request->company_id
         ]);
 
         return redirect()->route('task.show', $task->id)

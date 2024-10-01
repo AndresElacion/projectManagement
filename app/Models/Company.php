@@ -26,6 +26,10 @@ class Company extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function threads() {
+        return $this->hasMany(TaskThread::class);
+    }
+
     public function messages() {
         return $this->hasMany(Message::class);
     }
