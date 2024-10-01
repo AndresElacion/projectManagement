@@ -153,7 +153,7 @@ export default function Show({ auth, task, threads }) {
 
                     <div className="flex items-center justify-between mt-4">
                       <label className="font-bold text-lg">Updated By:</label>
-                      <p>{task.updatedBy.name}</p>
+                      <p>{task.project.updatedBy.name}</p>
                     </div>
 
                     <div className="flex items-center justify-between mt-4">
