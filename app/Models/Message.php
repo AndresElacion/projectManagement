@@ -20,4 +20,8 @@ class Message extends Model
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
+
+    public function companies() {
+        return $this->belongsTo(Company::class);
+    }
 }

@@ -14,7 +14,7 @@ class MessageController extends Controller
 {
     public function showChatPage() {
         // Fetch all users except the authenticated one
-        $users = User::where('id', '!=', Auth::id())->get();
+        $users = User::where('id', '!=', Auth::id())->where('company_id', Auth::user()->company_id)->get();
 
         return inertia('Chat/Chat', [
             'user' => Auth::user(),
@@ -24,6 +24,13 @@ class MessageController extends Controller
 
     // Fetch messages between the authenticated user and a specified receiver
     public function fetchMessages($receiverId) {
+        $receiver = User::findOrFail($receiverId);
+
+        // Check if the receiver is in the same company
+        if ($receiver->company_id !== Auth::user()->company_id) {
+            return response()->json(['error' => 'Unauthorized action'], 403);
+        }
+
         $fetchMessages = Message::where(function ($query) use ($receiverId) {
             $query->where('sender_id', Auth::id())
                   ->where('receiver_id', $receiverId)
@@ -44,6 +51,13 @@ class MessageController extends Controller
             'receiver_id' => 'required|exists:users,id',
         ]);
 
+        $receiver = User::findOrFail($request->receiver_id);
+
+        // Ensure the receiver is in the same company
+        if ($receiver->company_id !== Auth::user()->company_id) {
+            return response()->json(['error' => 'Unauthorized action'], 403);
+        }
+
         Message::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $request->receiver_id,
@@ -62,7 +76,7 @@ class MessageController extends Controller
 
         return Inertia::render('Chat/Chat', [
             'user' => Auth::user(),
-            'users' => User::where('id', '!=', Auth::id())->get(),
+            'users' => User::where('id', '!=', Auth::id())->where('company_id', Auth::user()->company_id)->get(),
             'fetchMessages' => $messages,
             'receiverId' => $request->receiver_id
         ]);
@@ -73,7 +87,8 @@ class MessageController extends Controller
 
     // Fetch a list of users to chat with
     public function getUsers() {
-        $users = User::where('id', '!=', Auth::id())->get(); // Get all users except the logged-in user
+        $users = User::where('id', '!=', Auth::id())->where('company_id', Auth::user()->company_id)->get();
+
         return response()->json($users);
     }
 }
