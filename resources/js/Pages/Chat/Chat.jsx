@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from '@inertiajs/react';
 
@@ -7,16 +6,16 @@ export default function Chat({ user, auth, users }) {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
-    const messagesEndRef = useRef(null); // Create a ref for the messages container
+    const [prevMessagesLength, setPrevMessagesLength] = useState(0); // Track the previous length of messages
+    const messagesEndRef = useRef(null);
+    const chatContainerRef = useRef(null);
 
     const fetchMessages = async (userId) => {
         try {
             const response = await fetch(`/messages/${userId}`);
-
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
             const data = await response.json();
             setMessages(data.fetchMessages);
         } catch (error) {
@@ -29,14 +28,26 @@ export default function Chat({ user, auth, users }) {
     useEffect(() => {
         if (selectedUser) {
             fetchMessages(selectedUser.id);
+
+            // Set up polling every 1 second
+            const intervalId = setInterval(() => {
+                fetchMessages(selectedUser.id);
+            }, 1000);
+
+            return () => clearInterval(intervalId);
         }
     }, [selectedUser]);
 
-    // Scroll to the latest message when messages state updates
+    // Track when new messages are received and scroll only if new messages are added
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (messages.length > prevMessagesLength) {
+            // Scroll to the latest message only if new messages were added
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
         }
+        // Update the previous messages length after rendering
+        setPrevMessagesLength(messages.length);
     }, [messages]);
 
     const handleSendMessage = async (e) => {
@@ -53,7 +64,7 @@ export default function Chat({ user, auth, users }) {
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
-                    id: Date.now(), // Use a temporary ID for the new message
+                    id: Date.now(),
                     sender: { name: user.name },
                     message: newMessage,
                 },
@@ -106,7 +117,10 @@ export default function Chat({ user, auth, users }) {
                         </h2>
 
                         {/* Chat container */}
-                        <div className="flex-1 overflow-y-auto bg-gray-100 p-6 rounded-lg shadow-inner h-0 grow">
+                        <div
+                            ref={chatContainerRef}
+                            className="flex-1 overflow-y-auto bg-gray-100 p-6 rounded-lg shadow-inner h-0 grow"
+                        >
                             {messages.length > 0 ? (
                                 messages.map((msg) => (
                                     <div
@@ -121,7 +135,7 @@ export default function Chat({ user, auth, users }) {
                                             className={`max-w-xs px-4 py-2 rounded-xl shadow-lg ${
                                                 msg.sender.name === user.name
                                                     ? 'bg-blue-500 text-white' // Style for sender
-                                                    : 'bg-gray-200 text-gray-800' // Style for receiver
+                                                    : 'bg-gray-50 text-gray-800' // Style for receiver
                                             }`}
                                         >
                                             <span className="block text-sm font-semibold">{msg.sender.name}</span>
