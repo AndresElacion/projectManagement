@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route to send a new message
     Route::post('/messages', [MessageController::class, 'sendMessages']);
     Route::get('/users', [MessageController::class, 'getUsers']); // Fetch list of users
+
+    Route::get('/messages/stream/{userId}', [MessageController::class, 'streamMessages']);
 });
 
 
