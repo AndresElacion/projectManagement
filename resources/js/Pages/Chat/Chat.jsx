@@ -38,6 +38,23 @@ export default function Chat({ user, auth, users }) {
         }
     }, [selectedUser]);
 
+    // useEffect(() => {
+    //     if (selectedUser) {
+    //         // Initial fetch
+    //         fetchMessages(selectedUser.id).then(newMessages => {
+    //             if (newMessages.length > 0) {
+    //                 // Start polling only if there are new messages
+    //                 const intervalId = setInterval(() => {
+    //                     fetchMessages(selectedUser.id);
+    //                 }, 1000);
+                    
+    //                 // Cleanup function to clear interval
+    //                 return () => clearInterval(intervalId);
+    //             }
+    //         });
+    //     }
+    // }, [selectedUser]);
+
     // Track when new messages are received and scroll only if new messages are added
     useEffect(() => {
         if (messages.length > prevMessagesLength) {
