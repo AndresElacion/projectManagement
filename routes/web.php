@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GanttController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -21,12 +22,12 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::resource('/project', ProjectController::class);
     Route::get('/task/my-tasks', [TaskController::class, 'myTasks'])->name('task.myTasks');
     Route::resource('/task', TaskController::class);
     Route::resource('/user', UserController::class);
     Route::post('/task/{task}/threads', [TaskController::class, 'storeThread'])->name('task.threads.store');
+    Route::get('/tasks/gantt', [GanttController::class, 'index'])->name('tasks.gantt');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

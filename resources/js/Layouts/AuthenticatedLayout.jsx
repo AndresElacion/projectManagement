@@ -43,6 +43,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                     My Tasks
                                 </NavLink>
 
+                                <NavLink href={route('tasks.gantt')} active={route().current('tasks.gantt')}>
+                                    Gantt
+                                </NavLink>
+
                                 <NavLink href={route('chat')} active={route().current('chat')}>
                                     Chat
                                 </NavLink>
