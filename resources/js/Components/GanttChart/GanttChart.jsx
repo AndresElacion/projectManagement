@@ -1,9 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Search, Filter, Calendar, Download } from 'lucide-react';
 import { parseDate } from './Utils';
 
 export default function GanttChart({ tasks }) {
     const [expandedProjects, setExpandedProjects] = useState(new Set());
     const [tooltip, setTooltip] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedFilters, setSelectedFilters] = useState({
+        status: new Set(['completed', 'in_progress', 'pending', 'blocked']),
+        dateRange: 'all'
+    });
 
     const { projectsData, dateRange } = useMemo(() => {
         const projectMap = new Map();
@@ -126,8 +132,53 @@ export default function GanttChart({ tasks }) {
         }
     };
 
+    const filteredProjectsData = useMemo(() => {
+        return projectsData.map(project => ({
+            ...project,
+            tasks: project.tasks.filter(task => {
+                const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesStatus = selectedFilters.status.has(task.status);
+                return matchesSearch && matchesStatus;
+            })
+        })).filter(project => project.tasks.length > 0);
+    }, [projectsData, searchTerm, selectedFilters]);
+
+    // Export functionality
+    const exportToCSV = useCallback(() => {
+        const csvContent = filteredProjectsData
+            .flatMap(project => project.tasks.map(task => ({
+                project: project.name,
+                task: task.name,
+                start: formatDate(task.start),
+                end: formatDate(task.end),
+                status: task.status
+            })))
+            .map(row => Object.values(row).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gantt-export.csv';
+        a.click();
+    }, [filteredProjectsData]);
+
     return (
         <div className="p-4 bg-[#1B1F3B]">
+
+            <div className="mb-4 flex items-center gap-4">
+
+                <button
+                    className="flex items-center gap-2 px-4 py-2 bg-[#292f4c] rounded-lg text-white hover:bg-[#353b5c]"
+                    onClick={exportToCSV}
+                >
+                    <Download size={16} />
+                    Export
+                </button>
+            </div>
+
+
             <div className="bg-[#292f4c] rounded-lg shadow">
                 {/* Quarters Timeline at the top */}
                 <div className="flex border-b border-gray-700">
