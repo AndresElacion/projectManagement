@@ -7,59 +7,102 @@ export default function GanttChart({ tasks }) {
 
     const { projectsData, dateRange } = useMemo(() => {
         const projectMap = new Map();
-        let minDate = new Date();
-        let maxDate = new Date();
+        let minDate = null;
+        let maxDate = null;
 
         tasks.data.forEach(task => {
             const projectName = task.project?.name || 'No Project';
             if (!projectMap.has(projectName)) {
-                projectMap.set(projectName, { name: projectName, tasks: [] });
+                projectMap.set(projectName, {
+                    name: projectName,
+                    tasks: [],
+                    stats: { total: 0, completed: 0 }
+                });
+            }
+            
+            const project = projectMap.get(projectName);
+            project.stats.total++;
+            if (task.status === 'completed') {
+                project.stats.completed++;
             }
             
             const startDate = parseDate(task.created_at);
             const endDate = parseDate(task.due_date);
             
-            minDate = new Date(Math.min(minDate, startDate));
-            maxDate = new Date(Math.max(maxDate, endDate));
+            if (!minDate || startDate < minDate) minDate = startDate;
+            if (!maxDate || endDate > maxDate) maxDate = endDate;
             
-            projectMap.get(projectName).tasks.push({
+            project.tasks.push({
                 ...task,
                 start: startDate.getTime(),
                 end: endDate.getTime()
             });
         });
 
+        // Calculate completion percentage for each project
+        projectMap.forEach(project => {
+            project.completionPercentage = 
+                project.stats.total > 0 
+                    ? Math.round((project.stats.completed / project.stats.total) * 100) 
+                    : 0;
+        });
+
+        const startQuarter = Math.floor(minDate.getMonth() / 3);
+        const startYear = minDate.getFullYear();
+        const bufferedMinDate = new Date(startYear, startQuarter * 3, 1);
+
+        const endQuarter = Math.ceil((maxDate.getMonth() + 1) / 3);
+        const endYear = maxDate.getFullYear();
+        const bufferedMaxDate = new Date(endYear, endQuarter * 3, 0);
+
         return {
             projectsData: Array.from(projectMap.values()),
-            dateRange: { min: minDate, max: maxDate }
+            dateRange: { 
+                min: bufferedMinDate, 
+                max: bufferedMaxDate
+            }
         };
     }, [tasks]);
 
-    const generateQuarters = useMemo(() => {
+    const quarters = useMemo(() => {
+        if (!dateRange.min || !dateRange.max) return [];
+        
         const quarters = [];
         const startYear = dateRange.min.getFullYear();
         const endYear = dateRange.max.getFullYear();
         
         for (let year = startYear; year <= endYear; year++) {
             for (let quarter = 1; quarter <= 4; quarter++) {
-                quarters.push({
-                    year,
-                    quarter,
-                    label: `Q${quarter}`,
-                    start: new Date(year, (quarter - 1) * 3, 1),
-                    end: new Date(year, quarter * 3, 0)
-                });
+                const quarterStart = new Date(year, (quarter - 1) * 3, 1);
+                const quarterEnd = new Date(year, quarter * 3, 0);
+                
+                if (quarterEnd >= dateRange.min && quarterStart <= dateRange.max) {
+                    quarters.push({
+                        year,
+                        quarter,
+                        start: quarterStart,
+                        end: quarterEnd
+                    });
+                }
             }
         }
         
-        return quarters.filter(q => 
-            q.start >= dateRange.min && q.start <= dateRange.max ||
-            q.end >= dateRange.min && q.end <= dateRange.max
-        );
+        return quarters;
     }, [dateRange]);
 
+    const getTaskPosition = (task) => {
+        const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
+        const taskStart = Math.max(task.start, dateRange.min.getTime());
+        const taskEnd = Math.min(task.end, dateRange.max.getTime());
+        
+        const start = ((taskStart - dateRange.min.getTime()) / totalDuration) * 100;
+        const width = ((taskEnd - taskStart) / totalDuration) * 100;
+        
+        return { start, width };
+    };
+
     const formatDate = (date) => {
-        return date.toLocaleDateString('en-US', {
+        return new Date(date).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
@@ -73,8 +116,8 @@ export default function GanttChart({ tasks }) {
                 y: event.clientY,
                 task: {
                     name: task.name,
-                    start: formatDate(new Date(task.start)),
-                    end: formatDate(new Date(task.end)),
+                    start: formatDate(task.start),
+                    end: formatDate(task.end),
                     status: task.status
                 }
             });
@@ -86,12 +129,40 @@ export default function GanttChart({ tasks }) {
     return (
         <div className="p-4 bg-[#1B1F3B]">
             <div className="bg-[#292f4c] rounded-lg shadow">
+                {/* Quarters Timeline at the top */}
+                <div className="flex border-b border-gray-700">
+                    <div className="w-[300px] min-w-[300px] border-r border-gray-700" />
+                    <div className="flex-1 relative h-16">
+                        {quarters.map((quarter) => {
+                            const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
+                            const quarterDuration = quarter.end.getTime() - quarter.start.getTime();
+                            const width = (quarterDuration / totalDuration) * 100;
+                            const left = ((quarter.start.getTime() - dateRange.min.getTime()) / totalDuration) * 100;
+
+                            return (
+                                <div
+                                    key={`${quarter.year}-Q${quarter.quarter}`}
+                                    className="absolute flex flex-col items-center justify-center h-full border-r border-gray-700/30"
+                                    style={{
+                                        left: `${left}%`,
+                                        width: `${width}%`
+                                    }}
+                                >
+                                    <div className="text-sm text-white/80">{quarter.year}</div>
+                                    <div className="text-sm text-white/80">Q{quarter.quarter}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Main content area */}
                 <div className="flex">
                     {/* Project/Task Names Column */}
-                    <div className="w-[300px] min-w-[300px] pt-16 border-r border-gray-700 bg-[#292f4c] z-10">
-                        <div className="task-names">
-                            {projectsData.map((project) => (
-                                <div key={project.name} className="project-group">
+                    <div className="w-[300px] min-w-[300px] border-r border-gray-700">
+                        {projectsData.map((project) => (
+                            <div key={project.name}>
+                                <div className="relative">
                                     <div 
                                         className="h-10 flex items-center px-4 bg-[#292f4c] border-b border-gray-700/30 cursor-pointer"
                                         onClick={() => {
@@ -109,79 +180,101 @@ export default function GanttChart({ tasks }) {
                                         <span className={`mr-2 transform transition-transform ${
                                             expandedProjects.has(project.name) ? 'rotate-90' : ''
                                         }`}>▶</span>
-                                        <span className="font-medium text-white">{project.name}</span>
-                                        <span className="ml-2 text-sm text-gray-400">
-                                            ({project.tasks.length})
-                                        </span>
-                                    </div>
-                                    {expandedProjects.has(project.name) && project.tasks.map((task) => (
-                                        <div 
-                                            key={task.id}
-                                            className="h-10 flex items-center px-8 text-sm text-white/80 border-b border-gray-700/30"
-                                        >
-                                            <span className="truncate">{task.name}</span>
+                                        <div className="flex justify-between items-center">
+                                            <div className="mr-4">
+                                                <span className="font-medium text-white">{project.name}</span>
+                                                <span className="ml-2 text-sm text-gray-400">
+                                                    ({project.tasks.length})
+                                                </span>
+                                            </div>
+                                            <div>
+                                                {/* Progress bar */}
+                                                <div className="mt-1 h-1 bg-gray-700 rounded-full">
+                                                    <div
+                                                        className="h-full bg-green-500 rounded-full"
+                                                        style={{ width: `${project.completionPercentage}%` }}
+                                                    />
+                                                </div>
+                                                <div className="text-xs text-gray-400">
+                                                    {project.completionPercentage}% Complete
+                                                </div>
+                                            </div>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
+                                {expandedProjects.has(project.name) && project.tasks.map((task) => (
+                                    <div 
+                                        key={task.id}
+                                        className="h-10 flex items-center px-8 text-sm text-white/80 border-b border-gray-700/30"
+                                    >
+                                        <span className="truncate">{task.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Gantt Chart Column */}
-                    <div className="flex-1 overflow-x-auto">
-                        {/* Timeline Header */}
-                        <div className="h-16 border-b border-gray-700/30">
-                            <div className="flex h-full">
-                                {generateQuarters.map((quarter, index) => {
-                                    const startOffset = Math.max(0, (quarter.start - dateRange.min) / (dateRange.max - dateRange.min));
-                                    const width = (quarter.end - quarter.start) / (dateRange.max - dateRange.min);
-                                    
+                    {/* Gantt Chart Area */}
+                    <div className="flex-1 relative">
+                        {/* Background grid lines */}
+                        {quarters.map((quarter) => {
+                            const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
+                            const left = ((quarter.start.getTime() - dateRange.min.getTime()) / totalDuration) * 100;
+                            
+                            return (
+                                <div
+                                    key={`${quarter.year}-Q${quarter.quarter}-grid`}
+                                    className="absolute h-full border-r border-gray-700/30"
+                                    style={{ left: `${left}%` }}
+                                />
+                            );
+                        })}
+
+                        {/* Tasks */}
+                        {projectsData.map((project) => (
+                            <div key={project.name}>
+                                <div className="h-10" /> {/* Space for project header */}
+                                {expandedProjects.has(project.name) && project.tasks.map((task) => {
+                                    const position = getTaskPosition(task);
                                     return (
-                                        <div
-                                            key={`${quarter.year}-${quarter.quarter}`}
-                                            className="flex flex-col items-center justify-center border-r border-gray-700/30 text-white/80"
-                                            style={{
-                                                width: `${width * 100}%`,
-                                                marginLeft: index === 0 ? `${startOffset * 100}%` : 0
-                                            }}
-                                        >
-                                            <div className="text-sm">{quarter.year}</div>
-                                            <div className="text-sm">{quarter.label}</div>
+                                        <div key={task.id} className="h-10 relative border-b border-gray-700/30">
+                                            <div 
+                                                className="absolute h-6 rounded cursor-pointer transition-opacity hover:opacity-80"
+                                                style={{
+                                                    left: `${position.start}%`,
+                                                    width: `${position.width}%`,
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    backgroundColor: task.status === 'completed' ? '#00C875' : 
+                                                                   task.status === 'in_progress' ? '#0073EA' :
+                                                                   task.status === 'blocked' ? '#E44258' : '#fdab3d'
+                                                }}
+                                                onMouseEnter={(e) => handleTaskHover(e, task)}
+                                                onMouseLeave={(e) => handleTaskHover(e, task)}
+                                            />
                                         </div>
                                     );
                                 })}
                             </div>
-                        </div>
-
-                        {/* Tasks Timeline */}
-                        <div className="relative">
-                            {projectsData.map((project) => (
-                                <div key={project.name}>
-                                    <div className="h-10" />
-                                    {expandedProjects.has(project.name) && (
-                                        project.tasks.map((task) => (
-                                            <div key={task.id} className="h-10 relative border-b border-gray-700/30">
-                                                <div 
-                                                    className="absolute h-6 rounded cursor-pointer transition-opacity hover:opacity-80"
-                                                    style={{
-                                                        left: `${((task.start - dateRange.min.getTime()) / (dateRange.max.getTime() - dateRange.min.getTime())) * 100}%`,
-                                                        width: `${((task.end - task.start) / (dateRange.max.getTime() - dateRange.min.getTime())) * 100}%`,
-                                                        top: '50%',
-                                                        transform: 'translateY(-50%)',
-                                                        backgroundColor: task.status === 'completed' ? '#00C875' : 
-                                                                       task.status === 'in_progress' ? '#0073EA' :
-                                                                       task.status === 'blocked' ? '#E44258' : '#fdab3d'
-                                                    }}
-                                                    onMouseEnter={(e) => handleTaskHover(e, task)}
-                                                    onMouseLeave={(e) => handleTaskHover(e, task)}
-                                                />
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                        ))}
                     </div>
+                </div>
+
+                {/* Legend */}
+                <div className="flex items-center justify-center gap-6 p-4 border-t border-gray-700/30">
+                    {[
+                        { status: 'completed', color: '#00C875', label: 'Completed' },
+                        { status: 'in_progress', color: '#0073EA', label: 'In Progress' },
+                        { status: 'pending', color: '#fdab3d', label: 'Pending' },
+                    ].map((item) => (
+                        <div key={item.status} className="flex items-center gap-2">
+                            <div 
+                                className="w-4 h-4 rounded"
+                                style={{ backgroundColor: item.color }}
+                            />
+                            <span className="text-sm text-white/80">{item.label}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -195,9 +288,10 @@ export default function GanttChart({ tasks }) {
                     }}
                 >
                     <p className="font-medium">{tooltip.task.name}</p>
-                    <p className="text-sm text-gray-600">Start: {tooltip.task.start}</p>
-                    <p className="text-sm text-gray-600">End: {tooltip.task.end}</p>
-                    <p className="text-sm text-gray-600">Status: {tooltip.task.status}</p>
+                    <p className="text-sm text-gray-600">
+                        {tooltip.task.start} - {tooltip.task.end}
+                    </p>
+                    <p className="text-sm text-gray-600 capitalize">Status: {tooltip.task.status}</p>
                 </div>
             )}
         </div>
