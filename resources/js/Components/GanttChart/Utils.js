@@ -1,30 +1,26 @@
-export const getDateRange = (tasks) => {
-  if (!tasks?.length) {
-    const today = new Date();
-    return {
-      min: new Date(today.getFullYear(), today.getMonth(), 1),
-      max: new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    };
-  }
-  
-  const starts = tasks.map(task => new Date(task.startDate).getTime());
-  const ends = tasks.map(task => new Date(task.endDate).getTime());
-  
-  const minDate = new Date(Math.min(...starts));
-  const maxDate = new Date(Math.max(...ends));
-  
-  // Set to first day of the start month
-  minDate.setDate(1);
-  // Set to last day of the end month
-  maxDate.setMonth(maxDate.getMonth() + 1, 0);
-  
-  return { min: minDate, max: maxDate };
+export const parseDate = (dateString) => {
+    return new Date(dateString);
 };
 
-// Format Month and Year Utility
-export const formatMonthYear = (date) => {
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    year: 'numeric'
-  });
+export const getQuarters = (startDate, endDate) => {
+    const quarters = [];
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+
+    for (let year = startYear; year <= endYear; year++) {
+        for (let quarter = 1; quarter <= 4; quarter++) {
+            const quarterStart = new Date(year, (quarter - 1) * 3, 1);
+            const quarterEnd = new Date(year, quarter * 3, 0);
+
+            if (quarterEnd >= startDate && quarterStart <= endDate) {
+                quarters.push({ 
+                    year, 
+                    label: `Q${quarter}`, 
+                    start: quarterStart, 
+                    end: quarterEnd 
+                });
+            }
+        }
+    }
+    return quarters;
 };

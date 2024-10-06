@@ -1,25 +1,48 @@
 import React from 'react';
-import { STATUS_COLORS } from './Constants';
 
-export default function CustomBar({ x, y, width, height, task, startPosition, endPosition, dateRange }) {
-  const color = STATUS_COLORS[task.status]?.bg || '#E5E7EB';
+export default function CustomBar({ task, dateRange, yIndex }) {
+  const startDate = new Date(task.start);
+  const endDate = new Date(task.end);
   
-  // Calculate the position and width based on the full date range
-  const totalRange = dateRange.max.getTime() - dateRange.min.getTime();
-  const barStart = ((startPosition - dateRange.min.getTime()) / totalRange) * width;
-  const barWidth = Math.max(((endPosition - startPosition) / totalRange) * width, 20);
+  if (!dateRange || !dateRange.min || !dateRange.max) {
+    console.error('Invalid dateRange:', dateRange);
+    return null;
+  }
+
+  const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
+  const barStart = ((startDate.getTime() - dateRange.min.getTime()) / totalDuration) * 100;
+  const barWidth = ((endDate.getTime() - startDate.getTime()) / totalDuration) * 100;
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return '#00C875';
+      case 'in_progress':
+        return '#0073EA';
+      case 'blocked':
+        return '#E44258';
+      default:
+        return '#fdab3d';
+    }
+  };
+
+  // Constants for positioning
+  const ROW_HEIGHT = 40;
+  const BAR_HEIGHT = 24;
+  
+  // Calculate vertical position based on the task's absolute index
+  const yPosition = yIndex * ROW_HEIGHT;
 
   return (
     <g>
       <rect
-        x={x + barStart}
-        y={y}
-        width={barWidth}
-        height={height}
-        fill={color}
+        x={`${barStart}%`}
+        y={yPosition + (ROW_HEIGHT - BAR_HEIGHT) / 2}
+        width={`${barWidth}%`}
+        height={BAR_HEIGHT}
         rx={4}
-        ry={4}
-        className="cursor-pointer hover:opacity-80 transition-opacity"
+        fill={getStatusColor(task.status)}
+        opacity={0.9}
       />
     </g>
   );
