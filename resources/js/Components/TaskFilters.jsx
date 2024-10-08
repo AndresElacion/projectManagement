@@ -71,12 +71,12 @@ export default function TaskFilters({
         <div className="mb-4 space-y-4">
             <div className="flex gap-4 flex-wrap">
                 <div className="flex-1 min-w-[200px]">
-                    <div className="relative">
+                    <div className="relative border rounded-lg shadow-lg">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
                             placeholder="Search tasks..."
-                            className="w-full bg-[#292f4c] text-white border-none rounded-lg pl-10 pr-4 py-2 placeholder-gray-400"
+                            className="w-full bg-white text-gray-800 border-none rounded-lg pl-10 pr-4 py-2 placeholder-gray-400"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -84,7 +84,7 @@ export default function TaskFilters({
                 </div>
                 <div className="w-48">
                     <select
-                        className="w-full bg-[#292f4c] text-white border-none rounded-lg px-4 py-2"
+                        className="w-full bg-white border text-gray-800 border-gray-200 shadow-lg rounded-lg px-4 py-2"
                         value={filterProject}
                         onChange={(e) => setFilterProject(e.target.value)}
                     >
@@ -95,7 +95,7 @@ export default function TaskFilters({
                     </select>
                 </div>
                 <button
-                    className="flex items-center gap-2 px-4 py-2 bg-[#292f4c] rounded-lg text-white hover:bg-[#353b5c]"
+                    className="flex items-center gap-2 px-4 py-2 bg-white shadow-lg border rounded-lg text-gray-800 hover:bg-gray-100"
                     onClick={onExport}
                 >
                     <Download size={16} />
