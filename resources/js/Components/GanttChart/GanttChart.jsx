@@ -1,56 +1,24 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Search, Filter, Calendar, Download } from 'lucide-react';
 import { parseDate } from './Utils';
+import TaskFilters from '../TaskFilters';
 
 export default function GanttChart({ tasks }) {
     const [expandedProjects, setExpandedProjects] = useState(new Set());
     const [tooltip, setTooltip] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedFilters, setSelectedFilters] = useState({
-        status: new Set(['completed', 'in_progress', 'pending', 'blocked']),
-        dateRange: 'all'
-    });
+    const [filterProject, setFilterProject] = useState('');
+    const [filteredProjectsData, setFilteredProjectsData] = useState([]);
 
-    const { projectsData, dateRange } = useMemo(() => {
-        const projectMap = new Map();
+    const { dateRange } = useMemo(() => {
         let minDate = null;
         let maxDate = null;
 
         tasks.data.forEach(task => {
-            const projectName = task.project?.name || 'No Project';
-            if (!projectMap.has(projectName)) {
-                projectMap.set(projectName, {
-                    name: projectName,
-                    tasks: [],
-                    stats: { total: 0, completed: 0 }
-                });
-            }
-            
-            const project = projectMap.get(projectName);
-            project.stats.total++;
-            if (task.status === 'completed') {
-                project.stats.completed++;
-            }
-            
             const startDate = parseDate(task.created_at);
             const endDate = parseDate(task.due_date);
             
             if (!minDate || startDate < minDate) minDate = startDate;
             if (!maxDate || endDate > maxDate) maxDate = endDate;
-            
-            project.tasks.push({
-                ...task,
-                start: startDate.getTime(),
-                end: endDate.getTime()
-            });
-        });
-
-        // Calculate completion percentage for each project
-        projectMap.forEach(project => {
-            project.completionPercentage = 
-                project.stats.total > 0 
-                    ? Math.round((project.stats.completed / project.stats.total) * 100) 
-                    : 0;
         });
 
         const startQuarter = Math.floor(minDate.getMonth() / 3);
@@ -62,7 +30,6 @@ export default function GanttChart({ tasks }) {
         const bufferedMaxDate = new Date(endYear, endQuarter * 3, 0);
 
         return {
-            projectsData: Array.from(projectMap.values()),
             dateRange: { 
                 min: bufferedMinDate, 
                 max: bufferedMaxDate
@@ -98,8 +65,8 @@ export default function GanttChart({ tasks }) {
 
     const getTaskPosition = (task) => {
         const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
-        const taskStart = Math.max(task.start, dateRange.min.getTime());
-        const taskEnd = Math.min(task.end, dateRange.max.getTime());
+        const taskStart = Math.max(parseDate(task.created_at).getTime(), dateRange.min.getTime());
+        const taskEnd = Math.min(parseDate(task.due_date).getTime(), dateRange.max.getTime());
         
         const start = ((taskStart - dateRange.min.getTime()) / totalDuration) * 100;
         const width = ((taskEnd - taskStart) / totalDuration) * 100;
@@ -122,35 +89,23 @@ export default function GanttChart({ tasks }) {
                 y: event.clientY,
                 task: {
                     name: task.name,
-                    start: formatDate(task.start),
-                    end: formatDate(task.end),
+                    start: formatDate(task.created_at),
+                    end: formatDate(task.due_date),
                     status: task.status
                 }
             });
-        } else {
+        } else if (event.type === 'mouseleave') {
             setTooltip(null);
         }
     };
 
-    const filteredProjectsData = useMemo(() => {
-        return projectsData.map(project => ({
-            ...project,
-            tasks: project.tasks.filter(task => {
-                const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesStatus = selectedFilters.status.has(task.status);
-                return matchesSearch && matchesStatus;
-            })
-        })).filter(project => project.tasks.length > 0);
-    }, [projectsData, searchTerm, selectedFilters]);
-
-    // Export functionality
     const exportToCSV = useCallback(() => {
         const csvContent = filteredProjectsData
             .flatMap(project => project.tasks.map(task => ({
                 project: project.name,
                 task: task.name,
-                start: formatDate(task.start),
-                end: formatDate(task.end),
+                start: formatDate(task.created_at),
+                end: formatDate(task.due_date),
                 status: task.status
             })))
             .map(row => Object.values(row).join(','))
@@ -164,20 +119,21 @@ export default function GanttChart({ tasks }) {
         a.click();
     }, [filteredProjectsData]);
 
+    const handleFilteredDataChange = useCallback((data) => {
+        setFilteredProjectsData(data);
+    }, []);
+
     return (
         <div className="p-4 bg-[#1B1F3B]">
-
-            <div className="mb-4 flex items-center gap-4">
-
-                <button
-                    className="flex items-center gap-2 px-4 py-2 bg-[#292f4c] rounded-lg text-white hover:bg-[#353b5c]"
-                    onClick={exportToCSV}
-                >
-                    <Download size={16} />
-                    Export
-                </button>
-            </div>
-
+            <TaskFilters 
+                tasks={tasks}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                filterProject={filterProject}
+                setFilterProject={setFilterProject}
+                onExport={exportToCSV}
+                onFilteredDataChange={handleFilteredDataChange}
+            />
 
             <div className="bg-[#292f4c] rounded-lg shadow">
                 {/* Quarters Timeline at the top */}
@@ -207,11 +163,10 @@ export default function GanttChart({ tasks }) {
                     </div>
                 </div>
 
-                {/* Main content area */}
+                {/* Project/Task Names Column */}
                 <div className="flex">
-                    {/* Project/Task Names Column */}
                     <div className="w-[300px] min-w-[300px] border-r border-gray-700">
-                        {projectsData.map((project) => (
+                        {filteredProjectsData.map((project) => (
                             <div key={project.name}>
                                 <div className="relative">
                                     <div 
@@ -231,7 +186,7 @@ export default function GanttChart({ tasks }) {
                                         <span className={`mr-2 transform transition-transform ${
                                             expandedProjects.has(project.name) ? 'rotate-90' : ''
                                         }`}>▶</span>
-                                        <div className="flex justify-between items-center">
+                                        <div className="flex justify-between items-center w-full">
                                             <div className="mr-4">
                                                 <span className="font-medium text-white">{project.name}</span>
                                                 <span className="ml-2 text-sm text-gray-400">
@@ -239,8 +194,7 @@ export default function GanttChart({ tasks }) {
                                                 </span>
                                             </div>
                                             <div>
-                                                {/* Progress bar */}
-                                                <div className="mt-1 h-1 bg-gray-700 rounded-full">
+                                                <div className="mt-1 h-1 w-20 bg-gray-700 rounded-full">
                                                     <div
                                                         className="h-full bg-green-500 rounded-full"
                                                         style={{ width: `${project.completionPercentage}%` }}
@@ -267,7 +221,6 @@ export default function GanttChart({ tasks }) {
 
                     {/* Gantt Chart Area */}
                     <div className="flex-1 relative">
-                        {/* Background grid lines */}
                         {quarters.map((quarter) => {
                             const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
                             const left = ((quarter.start.getTime() - dateRange.min.getTime()) / totalDuration) * 100;
@@ -281,10 +234,9 @@ export default function GanttChart({ tasks }) {
                             );
                         })}
 
-                        {/* Tasks */}
-                        {projectsData.map((project) => (
+                        {filteredProjectsData.map((project) => (
                             <div key={project.name}>
-                                <div className="h-10" /> {/* Space for project header */}
+                                <div className="h-10" />
                                 {expandedProjects.has(project.name) && project.tasks.map((task) => {
                                     const position = getTaskPosition(task);
                                     return (
@@ -332,17 +284,48 @@ export default function GanttChart({ tasks }) {
             {/* Tooltip */}
             {tooltip && (
                 <div
-                    className="fixed bg-white p-3 rounded-lg shadow-lg border z-50"
+                    className="fixed z-50 min-w-[280px] transform-gpu animate-in fade-in-0 zoom-in-95"
                     style={{
                         left: tooltip.x + 10,
                         top: tooltip.y + 10
                     }}
                 >
-                    <p className="font-medium">{tooltip.task.name}</p>
-                    <p className="text-sm text-gray-600">
-                        {tooltip.task.start} - {tooltip.task.end}
-                    </p>
-                    <p className="text-sm text-gray-600 capitalize">Status: {tooltip.task.status}</p>
+                    <div className="bg-[#292f4c] rounded-lg shadow-xl border border-gray-700/50 overflow-hidden">
+                        {/* Header with status indicator */}
+                        <div className="p-4 border-b border-gray-700/50">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div 
+                                    className="w-2 h-2 rounded-full animate-pulse"
+                                    style={{
+                                        backgroundColor: 
+                                            tooltip.task.status === 'completed' ? '#00C875' : 
+                                            tooltip.task.status === 'in_progress' ? '#0073EA' :
+                                            tooltip.task.status === 'blocked' ? '#E44258' : '#fdab3d'
+                                    }}
+                                />
+                                <span className="text-white/80 capitalize text-sm">
+                                    {tooltip.task.status}
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-semibold text-white leading-tight">
+                                {tooltip.task.name}
+                            </h3>
+                        </div>
+
+                        {/* Timeline info */}
+                        <div className="p-4 bg-[#1f2436]">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-xs font-medium uppercase text-gray-400">Start</div>
+                                    <div className="text-sm text-white">{tooltip.task.start}</div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="text-xs font-medium uppercase text-gray-400">End</div>
+                                    <div className="text-sm text-white">{tooltip.task.end}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
