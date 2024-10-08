@@ -124,22 +124,26 @@ export default function GanttChart({ tasks }) {
     }, []);
 
     return (
-        <div className="p-5 m-5 bg-white border overflow-hidden shadow-lg sm:rounded-lg">
-            <TaskFilters 
-                tasks={tasks}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                filterProject={filterProject}
-                setFilterProject={setFilterProject}
-                onExport={exportToCSV}
-                onFilteredDataChange={handleFilteredDataChange}
-            />
+        <div className="p-6 bg-gradient-to-b from-gray-50 to-white rounded-xl shadow-lg">
+            <div className="mb-6">
+                <TaskFilters 
+                    tasks={tasks}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filterProject={filterProject}
+                    setFilterProject={setFilterProject}
+                    onExport={exportToCSV}
+                    onFilteredDataChange={handleFilteredDataChange}
+                />
+            </div>
 
-            <div className="bg-white rounded-lg shadow">
-                {/* Quarters Timeline at the top */}
-                <div className="flex border rounded-lg border-gray-300">
-                    <div className="w-[300px] min-w-[300px] border" />
-                    <div className="flex-1 relative h-16 ml-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Quarters Timeline */}
+                <div className="flex border-b border-gray-200">
+                    <div className="w-[300px] min-w-[300px] bg-gray-50 border-r border-gray-200 flex items-center justify-center py-4">
+                        <h1 className="text-sm font-semibold text-gray-700 tracking-wider">PROJECTS</h1>
+                    </div>
+                    <div className="flex-1 relative h-16 bg-gray-50">
                         {quarters.map((quarter) => {
                             const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
                             const quarterDuration = quarter.end.getTime() - quarter.start.getTime();
@@ -149,14 +153,14 @@ export default function GanttChart({ tasks }) {
                             return (
                                 <div
                                     key={`${quarter.year}-Q${quarter.quarter}`}
-                                    className="absolute flex flex-col items-center justify-center h-full border-r border-gray-300"
+                                    className="absolute flex flex-col items-center justify-center h-full"
                                     style={{
                                         left: `${left}%`,
                                         width: `${width}%`
                                     }}
                                 >
-                                    <div className="text-sm text-gray-800">{quarter.year}</div>
-                                    <div className="text-sm text-gray-800">Q{quarter.quarter}</div>
+                                    <div className="font-medium text-gray-700">{quarter.year}</div>
+                                    <div className="text-sm text-gray-500">Q{quarter.quarter}</div>
                                 </div>
                             );
                         })}
@@ -165,62 +169,69 @@ export default function GanttChart({ tasks }) {
 
                 {/* Project/Task Names Column */}
                 <div className="flex">
-                    <div className="w-[300px] min-w-[300px] border-r border-gray-300">
+                    <div className="w-[300px] min-w-[300px] border-r border-gray-200">
                         {filteredProjectsData.map((project) => (
                             <div key={project.name}>
-                                <div className="relative">
-                                    <div 
-                                        className="h-10 flex items-center px-4 bg-white border-b border-gray-300 cursor-pointer"
-                                        onClick={() => {
-                                            setExpandedProjects(prev => {
-                                                const next = new Set(prev);
-                                                if (next.has(project.name)) {
-                                                    next.delete(project.name);
-                                                } else {
-                                                    next.add(project.name);
-                                                }
-                                                return next;
-                                            });
-                                        }}
-                                    >
-                                        <span className={`mr-2 transform transition-transform ${
+                                <div 
+                                    className="relative hover:bg-gray-50 transition-colors duration-150"
+                                    onClick={() => {
+                                        setExpandedProjects(prev => {
+                                            const next = new Set(prev);
+                                            if (next.has(project.name)) {
+                                                next.delete(project.name);
+                                            } else {
+                                                next.add(project.name);
+                                            }
+                                            return next;
+                                        });
+                                    }}
+                                >
+                                    <div className="h-12 flex items-center px-4 cursor-pointer group">
+                                        <span className={`mr-2 transform transition-transform duration-200 text-gray-400 group-hover:text-gray-600 ${
                                             expandedProjects.has(project.name) ? 'rotate-90' : ''
                                         }`}>▶</span>
                                         <div className="flex justify-between items-center w-full">
                                             <div className="mr-4">
                                                 <span className="font-medium text-gray-800">{project.name}</span>
-                                                <span className="ml-2 text-sm text-gray-800">
+                                                <span className="ml-2 text-sm text-gray-500">
                                                     ({project.tasks.length})
                                                 </span>
                                             </div>
                                             <div>
-                                                <div className="mt-1 h-1 w-20 bg-gray-700 rounded-full">
+                                                <div className="mt-1 h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-green-500 rounded-full"
-                                                        style={{ width: `${project.completionPercentage}%` }}
+                                                        className="h-full rounded-full transition-all duration-300"
+                                                        style={{ 
+                                                            width: `${project.completionPercentage}%`,
+                                                            backgroundColor: project.completionPercentage === 100 ? '#10B981' : '#3B82F6'
+                                                        }}
                                                     />
                                                 </div>
-                                                <div className="text-xs text-gray-400">
+                                                <div className="text-xs text-gray-400 mt-1">
                                                     {project.completionPercentage}% Complete
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                {expandedProjects.has(project.name) && project.tasks.map((task) => (
-                                    <div 
-                                        key={task.id}
-                                        className="h-10 flex items-center px-8 text-sm text-gray-800 border-b border-gray-300"
-                                    >
-                                        <span className="truncate">{task.name}</span>
+                                {expandedProjects.has(project.name) && (
+                                    <div className="animate-in slide-in-from-top duration-200">
+                                        {project.tasks.map((task) => (
+                                            <div 
+                                                key={task.id}
+                                                className="h-10 flex items-center px-8 text-sm text-gray-600 hover:bg-gray-50 transition-colors duration-150"
+                                            >
+                                                <span className="truncate">{task.name}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                )}
                             </div>
                         ))}
                     </div>
 
                     {/* Gantt Chart Area */}
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative bg-gray-50">
                         {quarters.map((quarter) => {
                             const totalDuration = dateRange.max.getTime() - dateRange.min.getTime();
                             const left = ((quarter.start.getTime() - dateRange.min.getTime()) / totalDuration) * 100;
@@ -228,7 +239,7 @@ export default function GanttChart({ tasks }) {
                             return (
                                 <div
                                     key={`${quarter.year}-Q${quarter.quarter}-grid`}
-                                    className="absolute h-full border-r border-gray-300"
+                                    className="absolute h-full border-l border-gray-200"
                                     style={{ left: `${left}%` }}
                                 />
                             );
@@ -236,21 +247,21 @@ export default function GanttChart({ tasks }) {
 
                         {filteredProjectsData.map((project) => (
                             <div key={project.name}>
-                                <div className="h-10 border-b" />
+                                <div className="h-12" />
                                 {expandedProjects.has(project.name) && project.tasks.map((task) => {
                                     const position = getTaskPosition(task);
                                     return (
-                                        <div key={task.id} className="h-10 relative border-b border-gray-300">
+                                        <div key={task.id} className="h-10 relative">
                                             <div 
-                                                className="absolute h-6 rounded cursor-pointer transition-opacity hover:opacity-80"
+                                                className="absolute h-6 rounded-full shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
                                                 style={{
                                                     left: `${position.start}%`,
                                                     width: `${position.width}%`,
                                                     top: '50%',
                                                     transform: 'translateY(-50%)',
-                                                    backgroundColor: task.status === 'completed' ? '#00C875' : 
-                                                                   task.status === 'in_progress' ? '#0073EA' :
-                                                                   task.status === 'blocked' ? '#E44258' : '#fdab3d'
+                                                    backgroundColor: task.status === 'completed' ? '#10B981' : 
+                                                                   task.status === 'in_progress' ? '#3B82F6' :
+                                                                   task.status === 'blocked' ? '#EF4444' : '#F59E0B'
                                                 }}
                                                 onMouseEnter={(e) => handleTaskHover(e, task)}
                                                 onMouseLeave={(e) => handleTaskHover(e, task)}
@@ -264,18 +275,18 @@ export default function GanttChart({ tasks }) {
                 </div>
 
                 {/* Legend */}
-                <div className="flex items-center justify-center gap-6 p-4 border-t border-gray-300">
+                <div className="flex items-center justify-center gap-8 p-4 bg-gray-50 border-t border-gray-200">
                     {[
-                        { status: 'completed', color: '#00C875', label: 'Completed' },
-                        { status: 'in_progress', color: '#0073EA', label: 'In Progress' },
-                        { status: 'pending', color: '#fdab3d', label: 'Pending' },
+                        { status: 'pending', color: '#F59E0B', label: 'Pending' },
+                        { status: 'in_progress', color: '#3B82F6', label: 'In Progress' },
+                        { status: 'completed', color: '#10B981', label: 'Completed' },
                     ].map((item) => (
                         <div key={item.status} className="flex items-center gap-2">
                             <div 
-                                className="w-4 h-4 rounded"
+                                className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: item.color }}
                             />
-                            <span className="text-sm text-gray-800">{item.label}</span>
+                            <span className="text-sm text-gray-600">{item.label}</span>
                         </div>
                     ))}
                 </div>
@@ -284,44 +295,42 @@ export default function GanttChart({ tasks }) {
             {/* Tooltip */}
             {tooltip && (
                 <div
-                    className="fixed z-50 min-w-[280px] transform-gpu animate-in fade-in-0 zoom-in-95"
+                    className="fixed z-50 transform-gpu animate-in fade-in-0 zoom-in-95 duration-200"
                     style={{
                         left: tooltip.x + 10,
                         top: tooltip.y + 10
                     }}
                 >
-                    <div className="bg-white rounded-lg shadow-xl border border-gray-300 overflow-hidden">
-                        {/* Header with status indicator */}
-                        <div className="p-4 border-b border-gray-300">
-                            <div className="flex items-center gap-2 mb-1">
+                    <div className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden min-w-[300px]">
+                        <div className="p-4 border-b border-gray-200 bg-gray-50">
+                            <div className="flex items-center gap-2 mb-2">
                                 <div 
-                                    className="w-2 h-2 rounded-full animate-pulse"
+                                    className="w-2.5 h-2.5 rounded-full animate-pulse"
                                     style={{
                                         backgroundColor: 
-                                            tooltip.task.status === 'completed' ? '#00C875' : 
-                                            tooltip.task.status === 'in_progress' ? '#0073EA' :
-                                            tooltip.task.status === 'blocked' ? '#E44258' : '#fdab3d'
+                                            tooltip.task.status === 'completed' ? '#10B981' : 
+                                            tooltip.task.status === 'in_progress' ? '#3B82F6' :
+                                            tooltip.task.status === 'blocked' ? '#EF4444' : '#F59E0B'
                                     }}
                                 />
-                                <span className="text-gray-800 capitalize text-sm">
-                                    {tooltip.task.status}
+                                <span className="text-gray-600 capitalize text-sm">
+                                    {tooltip.task.status.replace('_', ' ')}
                                 </span>
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800 leading-tight">
+                            <h3 className="text-lg font-medium text-gray-800 leading-tight">
                                 {tooltip.task.name}
                             </h3>
                         </div>
 
-                        {/* Timeline info */}
-                        <div className="p-4 bg-white">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-3">
-                                    <div className="text-xs font-medium uppercase text-gray-800">Start</div>
-                                    <div className="text-sm text-gray-800">{tooltip.task.start}</div>
+                        <div className="p-4">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-4">
+                                    <div className="text-xs font-medium uppercase text-gray-500">Start</div>
+                                    <div className="text-sm text-gray-700">{tooltip.task.start}</div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="text-xs font-medium uppercase text-gray-800">End</div>
-                                    <div className="text-sm text-gray-800">{tooltip.task.end}</div>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-xs font-medium uppercase text-gray-500">End</div>
+                                    <div className="text-sm text-gray-700">{tooltip.task.end}</div>
                                 </div>
                             </div>
                         </div>
