@@ -67,7 +67,7 @@ export default function Index({auth, projects, queryParams = null, success }) {
                             {success}
                         </div>
                     )}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white border overflow-hidden shadow-lg sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <div className="overflow-auto">
                             <table className="w-full text-sm text-left text-gray-500">

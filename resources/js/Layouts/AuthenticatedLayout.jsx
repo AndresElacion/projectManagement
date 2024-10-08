@@ -11,14 +11,14 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#1B1F3B]">
-            <nav className="bg-[#1B1F3B] border-b border-gray-600">
+        <div className="min-h-screen bg-white">
+            <nav className="bg-white border-b border-gray-600">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-100" />
+                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-700" />
                                 </Link>
                             </div>
 
@@ -140,7 +140,7 @@ export default function AuthenticatedLayout({ header, children }) {
             </nav>
 
             {header && (
-                <header className="bg-[#1B1F3B] shadow">
+                <header className="bg-white shadow">
                     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
