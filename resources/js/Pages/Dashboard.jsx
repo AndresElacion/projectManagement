@@ -11,7 +11,7 @@ export default function Dashboard({ auth, myPendingTasks, totalPendingTasks, myP
             <Head title="Dashboard" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-3 gap-2">
+                <div className="container mx-auto sm:px-6 lg:px-8 grid grid-cols-3 gap-2">
                     <div className="bg-white overflow-hidden shadow-lg border rounded-lg">
                         <div className="p-6 text-gray-900">
                             <h3 className='text-amber-500 text-2xl font-semibold'>
@@ -46,7 +46,7 @@ export default function Dashboard({ auth, myPendingTasks, totalPendingTasks, myP
                         </div>
                     </div>
                 </div>
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                <div className="container mx-auto sm:px-6 lg:px-8 mt-4">
                     <div className="bg-white overflow-hidden shadow-lg border rounded-lg">
                         <div className="p-6 text-gray-900">
                             <h3 className='text-xl font-semibold'>

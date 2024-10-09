@@ -61,7 +61,7 @@ export default function Index({auth, projects, queryParams = null, success }) {
             <Head title="Projects" />
             
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="container mx-auto sm:px-6 lg:px-8">
                     {success && (
                         <div className="bg-emerald-500 py-2 px-4 text-right rounded mb-4">
                             {success}
