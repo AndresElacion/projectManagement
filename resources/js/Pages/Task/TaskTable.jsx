@@ -279,13 +279,6 @@ export default function TaskTable({ tasks, tasks: initialTasks, success }) {
                                     )}
                                     
                                     <div className="flex items-center gap-3 mb-2">
-                                        {task.image_path && (
-                                            <img 
-                                                src={task.image_path} 
-                                                alt="" 
-                                                className="w-10 h-10 rounded object-cover"
-                                            />
-                                        )}
                                         <div className="flex-1 min-w-0">
                                             <Link 
                                                 href={route("task.show", task.id)}
@@ -311,7 +304,7 @@ export default function TaskTable({ tasks, tasks: initialTasks, success }) {
                                         </div>
                                     </div>
                                     
-                                    <div className="mt-2 flex gap-2 justify-end">
+                                    <div className="flex gap-2 justify-end">
                                         <Link 
                                             href={route('task.edit', task.id)} 
                                             className="text-sm text-blue-600 hover:underline"
