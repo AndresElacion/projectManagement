@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 
 const ProjectRow = ({ project, isExpanded, onToggle, level = 0, index }) => (
     <div 
-        className="h-[40px] px-4 flex items-center text-sm text-white border-gray-700/30 cursor-pointer hover:bg-gray-700/20"
+        className="h-[40px] px-4 flex items-center text-sm text-white border-b border-gray-700/30 cursor-pointer hover:bg-gray-700/20"
         style={{ paddingLeft: `${level * 16 + 16}px` }}
         onClick={onToggle}
     >
