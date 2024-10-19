@@ -76,6 +76,18 @@ export default function Welcome({ auth }) {
                             </div>
                         </section>
 
+                        {/* Optimize Project Planning with Interactive Gantt Charts */}
+                        <section className="mt-20 py-20 bg-slate-50 rounded-lg">
+                            <div className="container mx-auto px-6 lg:px-12 text-center">
+                                <h2 className="text-4xl font-extrabold text-gray-900">
+                                    Optimize Project Planning with Interactive Gantt Charts
+                                </h2>
+                                <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+                                    Easily manage timelines, set milestones, and track progress with our dynamic Gantt charts. It allows you to easily track tasks, their start and end dates, dependencies, and progress in real-time. Adjust task schedules with drag-and-drop functionality. With TaskFlow, it's easier to see the big picture and hit your goals on time!
+                                </p>
+                            </div>
+                        </section>
+
                         {/* Key Features Section */}
                         <section className="mt-20 py-20 bg-slate-50">
                             <div className="container mx-auto px-6 lg:px-12">
@@ -171,7 +183,7 @@ export default function Welcome({ auth }) {
 
                         {/* Footer */}
                         <footer className="bg-gray-900 text-white py-16 mt-24 rounded-lg shadow-md mb-12">
-                            <div className="container mx-auto text-center">
+                            <div className="w-full text-center">
                                 <p>&copy; {new Date().getFullYear()} TaskFlow. All rights reserved.</p>
                             </div>
                         </footer>
