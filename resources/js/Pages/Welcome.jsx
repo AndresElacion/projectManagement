@@ -6,10 +6,10 @@ export default function Welcome({ auth }) {
             <Head title="Welcome" />
             <div className="text-gray-700">
                 <div className="relative min-h-screen flex flex-col items-center justify-center bg-gray-50">
-                    <div className="relative w-full max-w-7xl px-6">
+                    <div className="relative w-full">
                         
                         {/* Navigation */}
-                        <nav className="flex justify-end py-6">
+                        <nav className="flex justify-end py-6 px-6">
                             {auth.user ? (
                                 <Link
                                     href={route('dashboard')}
@@ -36,33 +36,42 @@ export default function Welcome({ auth }) {
                         </nav>
 
                         {/* Hero Section */}
-                        <main className="mt-12 lg:mt-20 text-center lg:text-left">
-                            <section className="flex flex-col lg:flex-row items-center lg:space-x-12">
+                        <main className="mt-12 lg:mt-20 text-left">
+                            <section className="container mx-auto flex flex-col lg:flex-row items-center lg:space-x-12">
+                                {/* Content Section */}
                                 <div className="lg:w-1/2">
                                     <h1 className="text-5xl font-extrabold text-gray-900 leading-tight md:text-7xl">
-                                        TaskFlow: Organize, Manage, and Collaborate Effectively
+                                        Take Charge of Your Workflow with TaskFlow
                                     </h1>
                                     <p className="mt-6 text-xl text-gray-600 max-w-lg">
-                                        TaskFlow empowers teams to handle projects seamlessly, track progress, and collaborate efficiently to meet deadlines.
+                                        Supercharge your team’s productivity by managing tasks, tracking progress, and collaborating effortlessly to hit every deadline. Simplify your project planning with TaskFlow.
                                     </p>
                                     <div className="mt-8 flex space-x-4">
                                         <a
-                                            href={route('register')}
-                                            className="px-6 py-3 text-white bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700 transform hover:scale-105 transition duration-300 text-base font-semibold"
+                                        href={route('register')}
+                                        className="px-6 py-3 text-white bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700 transform hover:scale-105 transition duration-300 text-base font-semibold"
                                         >
-                                            Get Started
+                                        Start Your Free Trial
+                                        </a>
+                                        <a
+                                        href="#features"
+                                        className="px-6 py-3 text-blue-600 bg-transparent border border-blue-600 rounded-lg shadow-lg hover:bg-blue-100 transform hover:scale-105 transition duration-300 text-base font-semibold"
+                                        >
+                                        Explore Features
                                         </a>
                                     </div>
                                 </div>
 
                                 {/* Image Section */}
-                                <div className="mt-12 lg:mt-0 lg:w-1/2 flex justify-center">
-                                    <img className="w-full max-w-lg rounded-lg shadow-md transform hover:scale-105 transition duration-300" src="/img/Hero.png" alt="TaskFlow Dashboard" />
+                                <div className="mt-12 lg:mt-0 lg:w-1/2 flex justify-end">
+                                <img
+                                    className=" max-w-lg rounded-lg shadow-md transform hover:scale-105 transition duration-300"
+                                    src="/img/Hero.png"
+                                    alt="TaskFlow Dashboard"
+                                />
                                 </div>
                             </section>
-                        </main>
-
-                        
+                        </main>                        
 
                         {/* Goodbye to Old Tradition Section */}
                         <section className="mt-20 py-20 bg-slate-50 rounded-lg">
@@ -87,6 +96,21 @@ export default function Welcome({ auth }) {
                                 </p>
                             </div>
                         </section>
+
+                        {/* CTA */}
+                        <footer className="bg-blue-600 text-white py-16 mt-24 rounded-lg shadow-md mb-12">
+                            <div className="w-full text-center">
+                                <h2 className="text-4xl font-extrabold mb-4">
+                                    Start using TaskFlow today and watch your productivity soar!
+                                </h2>
+                                <a
+                                    href={route('register')}
+                                    className="px-6 py-3 text-white bg-amber-600 rounded-lg shadow-lg hover:bg-amber-500 transform hover:scale-105 transition duration-300 text-base font-semibold"
+                                    >
+                                    Start Your Free Trial
+                                </a>
+                            </div>
+                        </footer>
 
                         {/* Key Features Section */}
                         <section className="mt-20 py-20 bg-slate-50">
@@ -182,7 +206,7 @@ export default function Welcome({ auth }) {
                         </section>
 
                         {/* Footer */}
-                        <footer className="bg-gray-900 text-white py-16 mt-24 rounded-lg shadow-md mb-12">
+                        <footer className="bg-gray-900 text-white py-16 mt-24 rounded-t-lg shadow-md">
                             <div className="w-full text-center">
                                 <p>&copy; {new Date().getFullYear()} TaskFlow. All rights reserved.</p>
                             </div>
