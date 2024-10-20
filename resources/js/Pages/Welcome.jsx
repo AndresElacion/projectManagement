@@ -83,7 +83,7 @@ export default function Welcome({ auth }) {
                                     Optimize Project Planning with Interactive Gantt Charts
                                 </h2>
                                 <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                                    Easily manage timelines, set milestones, and track progress with our dynamic Gantt charts. It allows you to easily track tasks, their start and end dates, dependencies, and progress in real-time. Adjust task schedules with drag-and-drop functionality. With TaskFlow, it's easier to see the big picture and hit your goals on time!
+                                    Effortlessly manage timelines, set milestones, and track progress using our dynamic Gantt charts. Stay on top of every task, from start to finish, and monitor dependencies and progress in real-time. With simple drag-and-drop functionality, adjusting task schedules has never been easier. Whether you're managing a single project or multiple ones, TaskFlow helps you see the big picture and ensures you hit your goals on time and with precision!
                                 </p>
                             </div>
                         </section>
